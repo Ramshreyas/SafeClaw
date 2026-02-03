@@ -89,8 +89,10 @@ fi
 ## 6. Build Sandboxed Container
 Create the Docker definition that isolates the bot and decrypts secrets only in memory.
 
+### 6.1 Create Entrypoint Script
+This script handles the decryption of your credentials at runtime.
+
 ```bash
-# Create the entrypoint script
 cat <<'EOF' > entrypoint.sh
 #!/bin/bash
 if [ -z "$SECRET_KEY" ]; then echo "Error: SECRET_KEY not provided"; exit 1; fi
@@ -117,8 +119,12 @@ npx -y clawhub install prompt-guard || echo "Warning: PromptGuard install failed
 echo "Starting OpenClaw in Sandbox..."
 exec openclaw gateway
 EOF
+```
 
-# Create Dockerfile
+### 6.2 Create Dockerfile
+Define the secure container environment.
+
+```bash
 cat <<EOF > Dockerfile
 FROM node:22-slim
 WORKDIR /app
@@ -133,16 +139,22 @@ COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 EOF
+```
 
-# Build the image
+### 6.3 Build the Image
+Compile your secure container.
+
+```bash
 docker build -t secure-openclaw .
 ```
 
 ## 7. Run the Bot
-Create a quick launcher script named `safeclaw`.
+Create a quick launcher script named `safeclaw` so you don't have to type long Docker commands or expose your password in history.
+
+### 7.1 Create Launcher Script
+Matches your secure configuration to the running container.
 
 ```bash
-# Create the safeclaw script
 cat <<'EOF' > safeclaw
 #!/bin/bash
 # Prompt for password (input hidden)
@@ -164,19 +176,24 @@ docker run -d \
 
 echo "OpenClaw started."
 EOF
+```
 
+### 7.2 Install and Start
+Install the script to your system path and run it.
+
+```bash
 # Install the script
 chmod +x safeclaw
 sudo mv safeclaw /usr/local/bin/safeclaw
+
+# Start your bot
+safeclaw
 ```
 
 ## 8. Verification & Logs
-Start your bot and check if everything is running correctly.
+Check if everything is running correctly.
 
 ```bash
-# Start the bot
-safeclaw
-
 # Follow the logs
 docker logs -f openclaw
 ```
