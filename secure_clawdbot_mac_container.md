@@ -111,7 +111,6 @@ export OPENCLAW_DISABLE_BONJOUR=1
 # Install security skills if missing
 echo "Installing security skills..."
 mkdir -p /app/skills
-npx -y clawhub install skillguard || echo "Warning: SkillGuard install failed"
 npx -y clawhub install prompt-guard || echo "Warning: PromptGuard install failed"
 
 # Start OpenClaw
