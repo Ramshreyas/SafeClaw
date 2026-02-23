@@ -105,7 +105,7 @@ read -p "Press Enter to start the wizard..."
 docker run -it --rm \
   -v "$(pwd)/data:/root/.openclaw" \
   node:22-slim \
-  sh -c "apt-get update >/dev/null 2>&1 && apt-get install -y git >/dev/null 2>&1 && npm install -g openclaw@latest >/dev/null 2>&1 && openclaw onboard"
+  sh -c "apt-get update >/dev/null 2>&1 && apt-get install -y git >/dev/null 2>&1 && npm install -g openclaw@2026.2.19 >/dev/null 2>&1 && openclaw onboard"
 
 # --- Step 4: Encryption ---
 print_step "4/9" "Encrypting Credentials"
@@ -168,7 +168,7 @@ FROM node:22-slim
 WORKDIR /app
 # Install dependencies
 RUN apt-get update && apt-get install -y openssl jq curl python3 build-essential git && rm -rf /var/lib/apt/lists/*
-RUN npm install -g openclaw@latest
+RUN npm install -g openclaw@2026.2.19
 
 # Prepare directories
 RUN mkdir -p /root/.openclaw
