@@ -87,12 +87,14 @@ fi
 Create the Docker definition that isolates the bot and decrypts secrets only in memory.
 
 ### 6.1 Create Entrypoint Script
-This script handles the decryption of your credentials at runtime.
+This script handles the decryption of your credentials at runtime. **We now use stdin for the SECRET_KEY instead of an environment variable.**
 
 ```bash
 cat <<'EOF' > entrypoint.sh
 #!/bin/bash
-if [ -z "$SECRET_KEY" ]; then echo "Error: SECRET_KEY not provided"; exit 1; fi
+# Read the secret from stdin
+read -r SECRET_KEY
+if [ -z "$SECRET_KEY" ]; then echo "Error: SECRET_KEY not received via stdin"; exit 1; fi
 
 # Decrypt credentials directly into the config directory
 echo "Decrypting configuration..."
@@ -151,6 +153,8 @@ Create a quick launcher script named `safeclaw`.
 ### 7.1 Create Launcher Script
 Matches your secure configuration to the running container.
 
+**Warning:** Previously, the SECRET_KEY was passed as an environment variable (`-e SECRET_KEY="$SECRET_KEY"`). This exposed your key in `docker inspect` and `/proc/<pid>/environ`. The new method pipes the key via stdin, which is more secure.
+
 ```bash
 cat <<'EOF' > safeclaw
 #!/bin/bash
@@ -162,14 +166,13 @@ echo
 # Clean up previous instance if it exists
 docker rm -f openclaw 2>/dev/null || true
 
-# Run the secure container
+# Run the secure container, piping password via stdin
 echo "Launching OpenClaw..."
-docker run -d \
-  --name openclaw \
-  --restart unless-stopped \
-  -v ~/openclaw-secure/data:/app/data \
-  -e SECRET_KEY="$SECRET_KEY" \
-  secure-openclaw
+echo "$SECRET_KEY" | docker run -i -d \
+    --name openclaw \
+    --restart unless-stopped \
+    -v ~/openclaw-secure/data:/app/data \
+    secure-openclaw
 
 echo "OpenClaw started."
 EOF
