@@ -48,7 +48,7 @@ We will use a temporary container to run the OpenClaw onboarding wizard. This se
 docker run -it --rm \
   -v $(pwd)/data:/root/.openclaw \
   node:22-slim \
-  sh -c "apt-get update && apt-get install -y git && npm install -g openclaw@latest && openclaw onboard"
+  sh -c "apt-get update && apt-get install -y git && npm install -g openclaw@2026.2.19 && openclaw onboard"
 ```
 
 **Follow the wizard prompts:**
@@ -111,7 +111,6 @@ export OPENCLAW_DISABLE_BONJOUR=1
 # Install security skills if missing
 echo "Installing security skills..."
 mkdir -p /app/skills
-npx -y clawhub install skillguard || echo "Warning: SkillGuard install failed"
 npx -y clawhub install prompt-guard || echo "Warning: PromptGuard install failed"
 
 # Start OpenClaw
@@ -129,7 +128,7 @@ FROM node:22-slim
 WORKDIR /app
 # Install dependencies
 RUN apt-get update && apt-get install -y openssl jq curl python3 build-essential git && rm -rf /var/lib/apt/lists/*
-RUN npm install -g openclaw@latest
+RUN npm install -g openclaw@2026.2.19
 
 # Prepare directories
 RUN mkdir -p /root/.openclaw
